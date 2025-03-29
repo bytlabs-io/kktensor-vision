@@ -73,13 +73,12 @@ async def create_webcam_preview(frame) -> rtc.VideoFrame:
             2,
         )
 
-    image = cv2.cvtColor(temp_frame, cv2.COLOR_BGR2RGB)
-    image = Image.fromarray(image)
+    # image = cv2.cvtColor(temp_frame, cv2.COLOR_BGR2RGB)
     # image = ImageOps.contain(
     #     image, (temp_frame.shape[1], temp_frame.shape[0]), Image.LANCZOS
     # )
     # convert image to byte array
-    image = bytearray(np.asarray(image))
+    image = bytearray(np.asarray(temp_frame))
 
     # convert temp_frame to livekit VideoFrame
 

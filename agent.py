@@ -81,6 +81,9 @@ def create_webcam_preview(frame):
     #     image, (temp_frame.shape[1], temp_frame.shape[0]), Image.LANCZOS
     # )
 
+    # convert temp_frame to livekit VideoFrame
+    frame = rtc.VideoFrame(width=PREVIEW_DEFAULT_WIDTH, height=PREVIEW_DEFAULT_HEIGHT, type='proto_video.VideoBufferType.RGBA', data=temp_frame)
+
     return temp_frame
 
 

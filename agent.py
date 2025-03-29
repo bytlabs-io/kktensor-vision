@@ -44,11 +44,14 @@ async def entrypoint(ctx: JobContext):
     )
     # get widht and height of the video stream from first frame
     first_frame = await v_stream.__anext__()
-    width = first_frame.frame.width
-    height = first_frame.frame.height
+    WIDTH = first_frame.frame.width
+    HEIGHT = first_frame.frame.height
+
+    print("width: ", WIDTH)
+    print("height: ", HEIGHT)
 
     a_source = rtc.AudioSource(sample_rate=48000, num_channels=1)
-    v_source = rtc.VideoSource(width=width, height=height)
+    v_source = rtc.VideoSource(width=WIDTH, height=HEIGHT)
     a_track = rtc.LocalAudioTrack.create_audio_track("echo-a", a_source)
     v_track = rtc.LocalVideoTrack.create_video_track("echo-v", v_source)
     await ctx.room.local_participant.publish_track(
@@ -70,11 +73,14 @@ async def entrypoint(ctx: JobContext):
         frame_processors = get_frame_processors_modules(modules.globals.frame_processors)
         source_image = None
         prev_time = time.time()
+        next_frame_time = time.perf_counter()
         fps_update_interval = 0.5
         frame_count = 0
         fps = 0
 
         async for ev in v_stream:
+
+            WIDTH = ev.frame.width
 
 
             temp_frame = np.asarray(ev.frame.data).copy()
@@ -114,12 +120,17 @@ async def entrypoint(ctx: JobContext):
                     2,
                 )
     
-            image = bytearray(np.asarray(temp_frame))
+            temp_frame = cv2.cvtColor(temp_frame, cv2.COLOR_BGR2RGB)
+            temp_frame = cv2.resize(temp_frame, (WIDTH, HEIGHT))
+
+            rgb_frame = temp_frame.tobytes()
     
             # save frame as image
-            frame = rtc.VideoFrame(width=ev.frame.width, height=ev.frame.height, type=rtc.VideoBufferType.RGBA, data=image)
+            frame = rtc.VideoFrame(width=WIDTH, height=HEIGHT, type=rtc.VideoBufferType.RGB24, data=rgb_frame)
             # cv2.imwrite(f"media/frame_{time.time().__str__}.jpg", data)
             v_source.capture_frame(frame)
+            next_frame_time += 1 / fps
+            await asyncio.sleep(next_frame_time - time.perf_counter())
     
 
     await asyncio.gather(

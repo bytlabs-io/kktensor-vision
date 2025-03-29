@@ -119,7 +119,7 @@ async def entrypoint(ctx: JobContext):
     async def _process_audio():
         async for ev in a_stream:
             # delay for 100ms fo It can sync with video, this should be programmable for the user
-            await asyncio.sleep(0.2)
+            # await asyncio.sleep(0.2)
             await a_source.capture_frame(ev.frame)
 
     async def _process_video():

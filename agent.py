@@ -25,13 +25,11 @@ from modules.processors.frame.core import get_frame_processors_modules
 load_dotenv()
 logger = logging.getLogger("echo-agent")
 
-PREVIEW_DEFAULT_WIDTH = 720
-PREVIEW_DEFAULT_HEIGHT = 1280
 # An example agent that echos each utterance from the user back to them
 # the example uses a queue to buffer incoming streams, and uses VAD to detect
 # when the user is done speaking.
 
-async def create_webcam_preview(frame) -> rtc.VideoFrame:        
+async def create_webcam_preview(frame) -> rtc.VideoFrame:
     frame_processors = get_frame_processors_modules(modules.globals.frame_processors)
     source_image = None
     prev_time = time.time()
@@ -80,6 +78,8 @@ async def create_webcam_preview(frame) -> rtc.VideoFrame:
     # image = ImageOps.contain(
     #     image, (temp_frame.shape[1], temp_frame.shape[0]), Image.LANCZOS
     # )
+    # convert image to byte array
+    # image = bytearray(np.asarray(image))
 
     # convert temp_frame to livekit VideoFrame
 
@@ -101,9 +101,13 @@ async def entrypoint(ctx: JobContext):
         participant=participant,
         track_source=rtc.TrackSource.SOURCE_CAMERA,
     )
+    # get widht and height of the video stream from first frame
+    first_frame = v_stream.__anext__().frame
+    width = first_frame.width
+    height = first_frame.height
 
     a_source = rtc.AudioSource(sample_rate=48000, num_channels=1)
-    v_source = rtc.VideoSource(width=PREVIEW_DEFAULT_WIDTH, height=PREVIEW_DEFAULT_HEIGHT)
+    v_source = rtc.VideoSource(width=width, height=height)
     a_track = rtc.LocalAudioTrack.create_audio_track("echo-a", a_source)
     v_track = rtc.LocalVideoTrack.create_video_track("echo-v", v_source)
     await ctx.room.local_participant.publish_track(
@@ -124,12 +128,11 @@ async def entrypoint(ctx: JobContext):
     async def _process_video():
         async for ev in v_stream:
             data = await create_webcam_preview(ev.frame.data)
-            print(data)
             # save frame as image
-            frame = rtc.VideoFrame(width=PREVIEW_DEFAULT_WIDTH, height=PREVIEW_DEFAULT_HEIGHT, type=rtc.VideoBufferType.RGBA, data=data)
+            frame = rtc.VideoFrame(width=ev.frame.width, height=ev.frame.height, type=rtc.VideoBufferType.RGBA, data=data)
             # cv2.imwrite(f"media/frame_{time.time().__str__}.jpg", data)
             print(frame)
-            # v_source.capture_frame(frame)
+            v_source.capture_frame(frame)
 
 
     await asyncio.gather(

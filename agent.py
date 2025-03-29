@@ -88,53 +88,56 @@ def create_webcam_preview(frame):
 
 
 async def entrypoint(ctx: JobContext):
-    logger.info(f"connecting to room {ctx.room.name}")
-    await ctx.connect(auto_subscribe=AutoSubscribe.SUBSCRIBE_ALL)
-
-    # wait for the first participant to connect
-    participant: rtc.Participant = await ctx.wait_for_participant()
-    a_stream = rtc.AudioStream.from_participant(
-        participant=participant,
-        track_source=rtc.TrackSource.SOURCE_MICROPHONE,
-    )
-
-    v_stream = rtc.VideoStream.from_participant(
-        participant=participant,
-        track_source=rtc.TrackSource.SOURCE_CAMERA,
-    )
-
-    a_source = rtc.AudioSource(sample_rate=48000, num_channels=1)
-    v_source = rtc.VideoSource(width=PREVIEW_DEFAULT_WIDTH, height=PREVIEW_DEFAULT_HEIGHT)
-    a_track = rtc.LocalAudioTrack.create_audio_track("echo-a", a_source)
-    v_track = rtc.LocalVideoTrack.create_video_track("echo-v", v_source)
-    await ctx.room.local_participant.publish_track(
-        a_track,
-        rtc.TrackPublishOptions(source=rtc.TrackSource.SOURCE_MICROPHONE),
-    )
-    await ctx.room.local_participant.publish_track(
-        v_track,
-        rtc.TrackPublishOptions(source=rtc.TrackSource.SOURCE_CAMERA),
-    )
-
-    async def _process_audio():
-        async for ev in a_stream:
-            # delay for 100ms fo It can sync with video, this should be programmable for the user
-            await asyncio.sleep(0.2)
-            await a_source.capture_frame(ev.frame)
-
-    async def _process_video():
-        async for ev in v_stream:
-            try:
-                
-                predicted = create_webcam_preview(ev.frame)
-                v_source.capture_frame(predicted)
-            except Exception as e:
-                print(f"Error: {e}")
-
-    await asyncio.gather(
-        _process_video(),
-        _process_audio()
-    )
+    try:
+        logger.info(f"connecting to room {ctx.room.name}")
+        await ctx.connect(auto_subscribe=AutoSubscribe.SUBSCRIBE_ALL)
+    
+        # wait for the first participant to connect
+        participant: rtc.Participant = await ctx.wait_for_participant()
+        a_stream = rtc.AudioStream.from_participant(
+            participant=participant,
+            track_source=rtc.TrackSource.SOURCE_MICROPHONE,
+        )
+    
+        v_stream = rtc.VideoStream.from_participant(
+            participant=participant,
+            track_source=rtc.TrackSource.SOURCE_CAMERA,
+        )
+    
+        a_source = rtc.AudioSource(sample_rate=48000, num_channels=1)
+        v_source = rtc.VideoSource(width=PREVIEW_DEFAULT_WIDTH, height=PREVIEW_DEFAULT_HEIGHT)
+        a_track = rtc.LocalAudioTrack.create_audio_track("echo-a", a_source)
+        v_track = rtc.LocalVideoTrack.create_video_track("echo-v", v_source)
+        await ctx.room.local_participant.publish_track(
+            a_track,
+            rtc.TrackPublishOptions(source=rtc.TrackSource.SOURCE_MICROPHONE),
+        )
+        await ctx.room.local_participant.publish_track(
+            v_track,
+            rtc.TrackPublishOptions(source=rtc.TrackSource.SOURCE_CAMERA),
+        )
+    
+        async def _process_audio():
+            async for ev in a_stream:
+                # delay for 100ms fo It can sync with video, this should be programmable for the user
+                await asyncio.sleep(0.2)
+                await a_source.capture_frame(ev.frame)
+    
+        async def _process_video():
+            async for ev in v_stream:
+                try:
+                    
+                    predicted = create_webcam_preview(ev.frame)
+                    v_source.capture_frame(predicted)
+                except Exception as e:
+                    print(f"Error: {e}")
+    
+        await asyncio.gather(
+            _process_video(),
+            _process_audio()
+        )
+    except Exception as e:
+        print(f"Error: {e}")
 
 if __name__ == '__main__':
     try:

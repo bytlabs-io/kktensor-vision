@@ -2,6 +2,7 @@ import asyncio
 import logging
 import time
 import cv2
+import numpy as np
 import modules.globals
 from PIL import Image, ImageOps
 import modules.metadata
@@ -38,7 +39,7 @@ def create_webcam_preview(frame):
     frame_count = 0
     fps = 0
 
-    temp_frame = frame.data.copy()
+    temp_frame = np.asarray(frame).copy()
 
     if modules.globals.live_mirror:
         temp_frame = cv2.flip(temp_frame, 1)

@@ -31,7 +31,7 @@ PREVIEW_DEFAULT_HEIGHT = 1280
 # the example uses a queue to buffer incoming streams, and uses VAD to detect
 # when the user is done speaking.
 
-def create_webcam_preview(frame):        
+async def create_webcam_preview(frame) -> rtc.VideoFrame:        
     frame_processors = get_frame_processors_modules(modules.globals.frame_processors)
     source_image = None
     prev_time = time.time()
@@ -124,6 +124,9 @@ async def entrypoint(ctx: JobContext):
 
     async def _process_video():
         async for ev in v_stream:
+            predicted = await create_webcam_preview(ev.frame.data)
+            # save frame as image
+            cv2.imwrite(f"media/frame_{ev.frame.timestamp}.jpg", predicted.data)
             v_source.capture_frame(ev.frame)
 
 

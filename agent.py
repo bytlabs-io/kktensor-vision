@@ -127,8 +127,8 @@ async def entrypoint(ctx: JobContext):
             async for ev in v_stream:
                 try:
                     
-                    predicted = create_webcam_preview(ev.frame)
-                    v_source.capture_frame(predicted)
+                    # predicted = create_webcam_preview(ev.frame)
+                    v_source.capture_frame(ev.frame)
                 except Exception as e:
                     print(f"Error: {e}")
     

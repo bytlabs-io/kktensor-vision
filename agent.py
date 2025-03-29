@@ -75,9 +75,9 @@ async def create_webcam_preview(frame) -> rtc.VideoFrame:
 
     image = cv2.cvtColor(temp_frame, cv2.COLOR_BGR2RGB)
     image = Image.fromarray(image)
-    image = ImageOps.contain(
-        image, (temp_frame.shape[1], temp_frame.shape[0]), Image.LANCZOS
-    )
+    # image = ImageOps.contain(
+    #     image, (temp_frame.shape[1], temp_frame.shape[0]), Image.LANCZOS
+    # )
     # convert image to byte array
     image = bytearray(np.asarray(image))
 

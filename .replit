@@ -1,0 +1,18 @@
+modules = ["python-3.12"]
+
+[nix]
+channel = "stable-24_05"
+
+[workflows]
+
+[[workflows.workflow]]
+name = "agent"
+mode = "sequential"
+author = 37805744
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python agent.py dev --source media/drake.jpg"

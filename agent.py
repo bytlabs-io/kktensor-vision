@@ -84,7 +84,7 @@ def create_webcam_preview(frame):
     # convert temp_frame to livekit VideoFrame
     frame = rtc.VideoFrame(width=PREVIEW_DEFAULT_WIDTH, height=PREVIEW_DEFAULT_HEIGHT, type='proto_video.VideoBufferType.RGBA', data=temp_frame)
 
-    return temp_frame
+    return frame
 
 
 async def entrypoint(ctx: JobContext):

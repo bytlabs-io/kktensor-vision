@@ -102,9 +102,9 @@ async def entrypoint(ctx: JobContext):
         track_source=rtc.TrackSource.SOURCE_CAMERA,
     )
     # get widht and height of the video stream from first frame
-    first_frame = await v_stream.__anext__().frame
-    width = first_frame.width
-    height = first_frame.height
+    first_frame = await v_stream.__anext__()
+    width = first_frame.frame.width
+    height = first_frame.frame.height
 
     a_source = rtc.AudioSource(sample_rate=48000, num_channels=1)
     v_source = rtc.VideoSource(width=width, height=height)

@@ -129,7 +129,7 @@ async def entrypoint(ctx: JobContext):
             frame = rtc.VideoFrame(width=WIDTH, height=HEIGHT, type=rtc.VideoBufferType.RGB24, data=rgb_frame)
             # cv2.imwrite(f"media/frame_{time.time().__str__}.jpg", data)
             v_source.capture_frame(frame)
-            next_frame_time += 1 / fps
+            next_frame_time += 1 / (fps if fps != 0 else 30)
             await asyncio.sleep(next_frame_time - time.perf_counter())
     
 

@@ -51,13 +51,7 @@ def parse_args() -> None:
     modules.globals.max_memory = suggest_max_memory()
     modules.globals.execution_providers = decode_execution_providers(['cuda'])
     modules.globals.execution_threads = suggest_execution_threads()
-    modules.globals.lang = 'en'
-
-    #for ENHANCER tumbler:
-    if 'face_enhancer' in args.frame_processor:
-        modules.globals.fp_ui['face_enhancer'] = True
-    else:
-        modules.globals.fp_ui['face_enhancer'] = False   
+    modules.globals.lang = 'en'   
 
 def encode_execution_providers(execution_providers: List[str]) -> List[str]:
     return [execution_provider.replace('ExecutionProvider', '').lower() for execution_provider in execution_providers]

@@ -29,7 +29,7 @@ logger = logging.getLogger("echo-agent")
 # the example uses a queue to buffer incoming streams, and uses VAD to detect
 # when the user is done speaking.
 
-async def create_webcam_preview(frame) -> rtc.VideoFrame:
+async def     create_webcam_preview(frame) -> rtc.VideoFrame:
     frame_processors = get_frame_processors_modules(modules.globals.frame_processors)
     source_image = None
     prev_time = time.time()

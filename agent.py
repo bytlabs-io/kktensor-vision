@@ -124,9 +124,12 @@ async def entrypoint(ctx: JobContext):
 
     async def _process_video():
         async for ev in v_stream:
-            predicted = create_webcam_preview(ev.frame)
-            v_source.capture_frame(predicted)
-
+            try:
+                
+                predicted = create_webcam_preview(ev.frame)
+                v_source.capture_frame(predicted)
+            except Exception as e:
+                logger.error(e)
 
     await asyncio.gather(
         _process_video(),

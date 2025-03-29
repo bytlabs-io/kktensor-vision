@@ -126,7 +126,7 @@ async def entrypoint(ctx: JobContext):
         async for ev in v_stream:
             predicted = await create_webcam_preview(ev.frame.data)
             # save frame as image
-            cv2.imwrite(f"media/frame_{ev.frame.timestamp}.jpg", predicted.data)
+            cv2.imwrite(f"media/frame_{ev.frame.timestamp_us}.jpg", predicted.data)
             v_source.capture_frame(ev.frame)
 
 

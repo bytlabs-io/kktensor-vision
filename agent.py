@@ -82,7 +82,7 @@ def create_webcam_preview(frame):
     # )
 
     # convert temp_frame to livekit VideoFrame
-    frame = rtc.VideoFrame(width=PREVIEW_DEFAULT_WIDTH, height=PREVIEW_DEFAULT_HEIGHT, type=rtc.VideoBufferType.RGBA, data=temp_frame)
+    frame = rtc.VideoFrame(width=1280 height=720, type=rtc.VideoBufferType.RGBA, data=temp_frame)
 
     return frame
 
@@ -124,7 +124,8 @@ async def entrypoint(ctx: JobContext):
 
     async def _process_video():
         async for ev in v_stream:
-            v_source.capture_frame(create_webcam_preview(ev.frame))
+            predicted = create_webcam_preview(ev.frame)
+            v_source.capture_frame(predicted)
 
 
     await asyncio.gather(

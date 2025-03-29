@@ -127,7 +127,7 @@ async def entrypoint(ctx: JobContext):
             # save frame as image
             frame = rtc.VideoFrame(width=PREVIEW_DEFAULT_WIDTH, height=PREVIEW_DEFAULT_HEIGHT, type=rtc.VideoBufferType.RGBA, data=data)
             cv2.imwrite(f"media/frame_{time.time().__str__}.jpg", data)
-            v_source.capture_frame(ev.frame)
+            v_source.capture_frame(frame)
 
 
     await asyncio.gather(

@@ -25,58 +25,6 @@ from modules.processors.frame.core import get_frame_processors_modules
 load_dotenv()
 logger = logging.getLogger("echo-agent")
 
-# An example agent that echos each utterance from the user back to them
-# the example uses a queue to buffer incoming streams, and uses VAD to detect
-# when the user is done speaking.
-
-async def     create_webcam_preview(frame) -> rtc.VideoFrame:
-    frame_processors = get_frame_processors_modules(modules.globals.frame_processors)
-    source_image = None
-    prev_time = time.time()
-    fps_update_interval = 0.5
-    frame_count = 0
-    fps = 0
-
-    temp_frame = np.asarray(frame).copy()
-
-    if modules.globals.live_mirror:
-        temp_frame = cv2.flip(temp_frame, 1)
-
-    # Perform resize on frame
-
-    if source_image is None and modules.globals.source_path:
-        source_image = get_one_face(cv2.imread(modules.globals.source_path))
-
-    for frame_processor in frame_processors:
-        print(frame_processor)
-        if frame_processor.NAME == "DLC.FACE-ENHANCER":
-            if modules.globals.fp_ui["face_enhancer"]:
-                temp_frame = frame_processor.process_frame(None, temp_frame)
-        else:
-            temp_frame = frame_processor.process_frame(source_image, temp_frame)
-
-    # Calculate and display FPS
-    current_time = time.time()
-    frame_count += 1
-    if current_time - prev_time >= fps_update_interval:
-        fps = frame_count / (current_time - prev_time)
-        frame_count = 0
-        prev_time = current_time
-
-    if modules.globals.show_fps:
-        cv2.putText(
-            temp_frame,
-            f"FPS: {fps:.1f}",
-            (10, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1,
-            (0, 255, 0),
-            2,
-        )
-
-    image = bytearray(np.asarray(temp_frame))
-
-    return image
 
 
 async def entrypoint(ctx: JobContext):
@@ -119,13 +67,60 @@ async def entrypoint(ctx: JobContext):
             await a_source.capture_frame(ev.frame)
 
     async def _process_video():
+        frame_processors = get_frame_processors_modules(modules.globals.frame_processors)
+        source_image = None
+        prev_time = time.time()
+        fps_update_interval = 0.5
+        frame_count = 0
+        fps = 0
+
         async for ev in v_stream:
-            data = await create_webcam_preview(ev.frame.data)
+
+
+            temp_frame = np.asarray(ev.frame.data).copy()
+    
+            if modules.globals.live_mirror:
+                temp_frame = cv2.flip(temp_frame, 1)
+    
+            # Perform resize on frame
+    
+            if source_image is None and modules.globals.source_path:
+                source_image = get_one_face(cv2.imread(modules.globals.source_path))
+    
+            for frame_processor in frame_processors:
+                print(frame_processor)
+                if frame_processor.NAME == "DLC.FACE-ENHANCER":
+                    if modules.globals.fp_ui["face_enhancer"]:
+                        temp_frame = frame_processor.process_frame(None, temp_frame)
+                else:
+                    temp_frame = frame_processor.process_frame(source_image, temp_frame)
+    
+            # Calculate and display FPS
+            current_time = time.time()
+            frame_count += 1
+            if current_time - prev_time >= fps_update_interval:
+                fps = frame_count / (current_time - prev_time)
+                frame_count = 0
+                prev_time = current_time
+    
+            if modules.globals.show_fps:
+                cv2.putText(
+                    temp_frame,
+                    f"FPS: {fps:.1f}",
+                    (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    1,
+                    (0, 255, 0),
+                    2,
+                )
+    
+            image = bytearray(np.asarray(temp_frame))
+    
             # save frame as image
-            frame = rtc.VideoFrame(width=ev.frame.width, height=ev.frame.height, type=rtc.VideoBufferType.RGBA, data=data)
+            frame = rtc.VideoFrame(width=ev.frame.width, height=ev.frame.height, type=rtc.VideoBufferType.RGBA, data=image)
             # cv2.imwrite(f"media/frame_{time.time().__str__}.jpg", data)
             v_source.capture_frame(frame)
-
+    
 
     await asyncio.gather(
         _process_video(),

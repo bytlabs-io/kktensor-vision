@@ -129,7 +129,7 @@ async def entrypoint(ctx: JobContext):
                 predicted = create_webcam_preview(ev.frame)
                 v_source.capture_frame(predicted)
             except Exception as e:
-                logger.error(e)
+                print(f"Error: {e}")
 
     await asyncio.gather(
         _process_video(),
@@ -137,11 +137,17 @@ async def entrypoint(ctx: JobContext):
     )
 
 if __name__ == '__main__':
-    core.run()
+    try:
+        core.run()
+    except Exception as e:
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
-    cli.run_app(
-        WorkerOptions(
-            entrypoint_fnc=entrypoint,
-        ),
-    )
+    try:
+        cli.run_app(
+            WorkerOptions(
+                entrypoint_fnc=entrypoint,
+            ),
+        )
+    except Exception as e:
+        print(f"Error: {e}")

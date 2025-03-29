@@ -38,7 +38,7 @@ def create_webcam_preview(frame):
     frame_count = 0
     fps = 0
 
-    temp_frame = frame.copy()
+    temp_frame = frame.data.copy()
 
     if modules.globals.live_mirror:
         temp_frame = cv2.flip(temp_frame, 1)

@@ -48,6 +48,7 @@ async def create_webcam_preview(frame) -> rtc.VideoFrame:
         source_image = get_one_face(cv2.imread(modules.globals.source_path))
 
     for frame_processor in frame_processors:
+        print(frame_processor)
         if frame_processor.NAME == "DLC.FACE-ENHANCER":
             if modules.globals.fp_ui["face_enhancer"]:
                 temp_frame = frame_processor.process_frame(None, temp_frame)
@@ -73,14 +74,7 @@ async def create_webcam_preview(frame) -> rtc.VideoFrame:
             2,
         )
 
-    # image = cv2.cvtColor(temp_frame, cv2.COLOR_BGR2RGB)
-    # image = ImageOps.contain(
-    #     image, (temp_frame.shape[1], temp_frame.shape[0]), Image.LANCZOS
-    # )
-    # convert image to byte array
     image = bytearray(np.asarray(temp_frame))
-
-    # convert temp_frame to livekit VideoFrame
 
     return image
 

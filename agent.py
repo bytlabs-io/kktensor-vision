@@ -124,7 +124,6 @@ async def entrypoint(ctx: JobContext):
             # save frame as image
             frame = rtc.VideoFrame(width=ev.frame.width, height=ev.frame.height, type=rtc.VideoBufferType.RGBA, data=data)
             # cv2.imwrite(f"media/frame_{time.time().__str__}.jpg", data)
-            print(frame)
             v_source.capture_frame(frame)
 
 
@@ -132,9 +131,6 @@ async def entrypoint(ctx: JobContext):
         _process_video(),
         _process_audio()
     )
-
-# if __name__ == '__main__':
-#     core.run()
 
 if __name__ == "__main__":
     cli.run_app(

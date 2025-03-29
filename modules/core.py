@@ -26,6 +26,39 @@ if 'ROCMExecutionProvider' in modules.globals.execution_providers:
 warnings.filterwarnings('ignore', category=FutureWarning, module='insightface')
 warnings.filterwarnings('ignore', category=UserWarning, module='torchvision')
 
+
+def parse_args() -> None:
+    signal.signal(signal.SIGINT, lambda signal_number, frame: destroy())
+    program = argparse.ArgumentParser()
+    program.add_argument('-s', '--source', help='select an source image or video', dest='source_path')
+    args = program.parse_args()
+
+    modules.globals.source_path = args.source_path
+    modules.globals.output_path = '/tmp/output'
+    modules.globals.frame_processors = ['face_swapper']
+    modules.globals.headless = '/tmp/output'
+    modules.globals.keep_fps = False
+    modules.globals.keep_audio = True
+    modules.globals.keep_frames = False
+    modules.globals.many_faces = False
+    modules.globals.mouth_mask = False
+    modules.globals.nsfw_filter = False
+    modules.globals.map_faces = False
+    modules.globals.video_encoder = False
+    modules.globals.video_quality = 18
+    modules.globals.live_mirror = False
+    modules.globals.live_resizable = False
+    modules.globals.max_memory = suggest_max_memory()
+    modules.globals.execution_providers = decode_execution_providers(['cuda'])
+    modules.globals.execution_threads = suggest_execution_threads()
+    modules.globals.lang = 'en'
+
+    #for ENHANCER tumbler:
+    if 'face_enhancer' in args.frame_processor:
+        modules.globals.fp_ui['face_enhancer'] = True
+    else:
+        modules.globals.fp_ui['face_enhancer'] = False   
+
 def encode_execution_providers(execution_providers: List[str]) -> List[str]:
     return [execution_provider.replace('ExecutionProvider', '').lower() for execution_provider in execution_providers]
 
@@ -104,6 +137,7 @@ def destroy(to_quit=True) -> None:
 
 
 def run() -> None:
+    parse_args()
     if not pre_check():
         return
     for frame_processor in get_frame_processors_modules(modules.globals.frame_processors):

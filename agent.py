@@ -119,11 +119,13 @@ async def entrypoint(ctx: JobContext):
                     (0, 255, 0),
                     2,
                 )
-    
-            temp_frame = cv2.cvtColor(temp_frame, cv2.COLOR_BGR2RGB)
-            temp_frame = cv2.resize(temp_frame, (WIDTH, HEIGHT))
 
-            rgb_frame = temp_frame.tobytes()
+            image = cv2.cvtColor(temp_frame, cv2.COLOR_BGR2RGB)
+    
+            # temp_frame = cv2.cvtColor(temp_frame, cv2.COLOR_BGR2RGB)
+            # temp_frame = cv2.resize(temp_frame, (WIDTH, HEIGHT))
+
+            rgb_frame = image.tobytes()
     
             # save frame as image
             frame = rtc.VideoFrame(width=WIDTH, height=HEIGHT, type=rtc.VideoBufferType.RGB24, data=rgb_frame)
